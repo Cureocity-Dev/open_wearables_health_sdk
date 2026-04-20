@@ -103,18 +103,27 @@ class OpenWearablesHealthService implements HealthService {
   }
 
   @override
-  Future<void> fetchHealthData() =>
-      throw UnimplementedError('implemented in Task 15');
+  Future<void> fetchHealthData() {
+    throw UnsupportedError(
+      'Open Wearables SDK has no local-read API. Data is written to backend; '
+      'read paths live in your backend (e.g. via REST /api/v1/...).',
+    );
+  }
 
   @override
-  Future<void> fetchHistoricalHealthData() =>
-      throw UnimplementedError('implemented in Task 15');
+  Future<void> fetchHistoricalHealthData() {
+    throw UnsupportedError(
+      'Historical reads go through your backend, not the SDK.',
+    );
+  }
 
   @override
-  Future<bool> writeWaterIntake(double waterMl) =>
-      throw UnimplementedError('implemented in Task 15');
+  Future<bool> writeWaterIntake(double waterMl) async => false;
 
   @override
-  Future<void> buildDailyPayload() =>
-      throw UnimplementedError('implemented in Task 15');
+  Future<void> buildDailyPayload() {
+    throw UnsupportedError(
+      'SDK self-uploads to backend; no client-built payload.',
+    );
+  }
 }

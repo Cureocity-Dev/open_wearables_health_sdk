@@ -153,4 +153,19 @@ void main() {
           )).called(1);
     });
   });
+
+  group('OpenWearablesHealthService unsupported operations', () {
+    test('fetchHealthData throws UnsupportedError', () {
+      expect(service.fetchHealthData, throwsA(isA<UnsupportedError>()));
+    });
+    test('fetchHistoricalHealthData throws UnsupportedError', () {
+      expect(service.fetchHistoricalHealthData, throwsA(isA<UnsupportedError>()));
+    });
+    test('writeWaterIntake returns false', () async {
+      expect(await service.writeWaterIntake(250), isFalse);
+    });
+    test('buildDailyPayload throws UnsupportedError', () {
+      expect(service.buildDailyPayload, throwsA(isA<UnsupportedError>()));
+    });
+  });
 }
