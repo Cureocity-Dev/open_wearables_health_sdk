@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:open_wearables_health_sdk/health_data_type.dart';
+
 import 'health_metric.dart';
 import 'health_service.dart';
 import 'open_wearables_sdk_api.dart';
@@ -25,9 +27,30 @@ class OpenWearablesHealthService implements HealthService {
   @override
   bool get supportsDeviceListing => Platform.isAndroid;
 
+  /// Cureocity → Open Wearables metric mapping. `null` means the SDK
+  /// does not cover this metric (the gap list driving sub-project C).
+  static const Map<HealthMetric, HealthDataType?> _metricMap = {
+    HealthMetric.steps:           HealthDataType.steps,
+    HealthMetric.sleepDuration:   HealthDataType.sleep,
+    HealthMetric.heartrate:       HealthDataType.heartRate,
+    HealthMetric.bodyTemperature: HealthDataType.bodyTemperature,
+    HealthMetric.bloodPressure:   HealthDataType.bloodPressure,
+    HealthMetric.hrv:             HealthDataType.heartRateVariabilitySDNN,
+    HealthMetric.spo2:            HealthDataType.oxygenSaturation,
+    HealthMetric.breathingRate:   HealthDataType.respiratoryRate,
+    HealthMetric.calories:        null, // derive activeEnergy + basalEnergy (Cureocity backend)
+    HealthMetric.bodyComposition: null, // partial via bodyFat + lean + mass
+    HealthMetric.stressScore:     null, // not in SDK at all
+  };
+
   @override
-  bool supportsMetric(HealthMetric metric) =>
-      throw UnimplementedError('metric map added in Task 11');
+  bool supportsMetric(HealthMetric metric) => _metricMap[metric] != null;
+
+  /// Returns SDK types corresponding to provided Cureocity metrics.
+  /// Skips `null` (gap) entries. Used by later tasks.
+  // ignore: unused_element
+  List<HealthDataType> _mappedTypesFor(Iterable<HealthMetric> metrics) =>
+      metrics.map((m) => _metricMap[m]).whereType<HealthDataType>().toList();
 
   @override
   Future<void> init({
