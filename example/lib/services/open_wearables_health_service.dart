@@ -1,7 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:open_wearables_health_sdk/health_data_type.dart';
-import 'package:open_wearables_health_sdk/src/provider.dart';
+import 'package:open_wearables_health_sdk/open_wearables_health_sdk.dart';
 
 import 'health_metric.dart';
 import 'health_service.dart';
@@ -150,4 +150,16 @@ class OpenWearablesHealthService implements HealthService {
 
   Future<void> setProvider(AndroidHealthProvider provider) =>
       _sdk.setProvider(provider);
+
+  Future<Map<String, dynamic>> getStoredCredentials() =>
+      _sdk.getStoredCredentials();
+
+  Future<void> updateTokens({required String accessToken, String? refreshToken}) =>
+      _sdk.updateTokens(accessToken: accessToken, refreshToken: refreshToken);
+
+  Future<void> signOut() async {
+    await _sdk.signOut();
+    _signedIn = false;
+    _configured = false;
+  }
 }

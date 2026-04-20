@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:open_wearables_health_sdk/health_data_type.dart';
-import 'package:open_wearables_health_sdk/src/provider.dart';
+import 'package:open_wearables_health_sdk/open_wearables_health_sdk.dart';
 import 'package:open_wearables_health_sdk_example/services/health_metric.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_health_service.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_sdk_api.dart';
@@ -225,6 +225,34 @@ void main() {
       when(() => sdk.setProvider(any())).thenAnswer((_) async {});
       await service.setProvider(AndroidHealthProvider.healthConnect);
       verify(() => sdk.setProvider(AndroidHealthProvider.healthConnect)).called(1);
+    });
+  });
+
+  group('OpenWearablesHealthService credential ops', () {
+    test('getStoredCredentials forwards', () async {
+      when(() => sdk.getStoredCredentials())
+          .thenAnswer((_) async => {'userId': 'demo-user-1'});
+      expect((await service.getStoredCredentials())['userId'], 'demo-user-1');
+    });
+
+    test('updateTokens forwards', () async {
+      when(() => sdk.updateTokens(
+                accessToken: any(named: 'accessToken'),
+                refreshToken: any(named: 'refreshToken'),
+              ))
+          .thenAnswer((_) async {});
+      await service.updateTokens(accessToken: 'new-access', refreshToken: 'new-refresh');
+      verify(() => sdk.updateTokens(
+            accessToken: 'new-access',
+            refreshToken: 'new-refresh',
+          )).called(1);
+    });
+
+    test('signOut forwards and clears isInitialized', () async {
+      when(() => sdk.signOut()).thenAnswer((_) async {});
+      await service.signOut();
+      verify(() => sdk.signOut()).called(1);
+      expect(service.isInitialized, isFalse);
     });
   });
 }
