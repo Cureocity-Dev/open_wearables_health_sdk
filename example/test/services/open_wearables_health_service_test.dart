@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:open_wearables_health_sdk/health_data_type.dart';
+import 'package:open_wearables_health_sdk/src/provider.dart';
 import 'package:open_wearables_health_sdk_example/services/health_metric.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_health_service.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_sdk_api.dart';
@@ -20,6 +21,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(<String>[]);
     registerFallbackValue(<HealthDataType>[]);
+    registerFallbackValue(AndroidHealthProvider.healthConnect);
   });
 
   setUp(() {
@@ -206,6 +208,23 @@ void main() {
       when(() => sdk.getSyncStatus()).thenAnswer((_) async => {'state': 'idle'});
       final status = await service.getSyncStatus();
       expect(status['state'], 'idle');
+    });
+  });
+
+  group('OpenWearablesHealthService provider passthroughs', () {
+    test('getAvailableProviders returns SDK result', () async {
+      when(() => sdk.getAvailableProviders()).thenAnswer((_) async => const [
+            AvailableProvider(id: 'samsung', displayName: 'Samsung Health'),
+            AvailableProvider(id: 'google', displayName: 'Health Connect'),
+          ]);
+      final list = await service.getAvailableProviders();
+      expect(list.map((p) => p.id), ['samsung', 'google']);
+    });
+
+    test('setProvider forwards the AndroidHealthProvider value', () async {
+      when(() => sdk.setProvider(any())).thenAnswer((_) async {});
+      await service.setProvider(AndroidHealthProvider.healthConnect);
+      verify(() => sdk.setProvider(AndroidHealthProvider.healthConnect)).called(1);
     });
   });
 }

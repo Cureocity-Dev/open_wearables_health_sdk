@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:open_wearables_health_sdk/health_data_type.dart';
+import 'package:open_wearables_health_sdk/src/provider.dart';
 
 import 'health_metric.dart';
 import 'health_service.dart';
@@ -143,4 +144,10 @@ class OpenWearablesHealthService implements HealthService {
   Future<void> clearSyncSession() => _sdk.clearSyncSession();
 
   Future<Map<String, dynamic>> getSyncStatus() => _sdk.getSyncStatus();
+
+  Future<List<AvailableProvider>> getAvailableProviders() =>
+      _sdk.getAvailableProviders();
+
+  Future<void> setProvider(AndroidHealthProvider provider) =>
+      _sdk.setProvider(provider);
 }
