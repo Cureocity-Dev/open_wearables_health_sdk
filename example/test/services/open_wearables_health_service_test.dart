@@ -168,4 +168,44 @@ void main() {
       expect(service.buildDailyPayload, throwsA(isA<UnsupportedError>()));
     });
   });
+
+  group('OpenWearablesHealthService sync passthroughs', () {
+    test('syncNow forwards to SDK', () async {
+      when(() => sdk.syncNow()).thenAnswer((_) async {});
+      await service.syncNow();
+      verify(() => sdk.syncNow()).called(1);
+    });
+
+    test('startBackgroundSync forwards syncDaysBack and returns bool', () async {
+      when(() => sdk.startBackgroundSync(syncDaysBack: any(named: 'syncDaysBack')))
+          .thenAnswer((_) async => true);
+      final ok = await service.startBackgroundSync(syncDaysBack: 30);
+      expect(ok, isTrue);
+      verify(() => sdk.startBackgroundSync(syncDaysBack: 30)).called(1);
+    });
+
+    test('stopBackgroundSync forwards', () async {
+      when(() => sdk.stopBackgroundSync()).thenAnswer((_) async {});
+      await service.stopBackgroundSync();
+      verify(() => sdk.stopBackgroundSync()).called(1);
+    });
+
+    test('resetAnchors / resumeSync / clearSyncSession forward', () async {
+      when(() => sdk.resetAnchors()).thenAnswer((_) async {});
+      when(() => sdk.resumeSync()).thenAnswer((_) async {});
+      when(() => sdk.clearSyncSession()).thenAnswer((_) async {});
+      await service.resetAnchors();
+      await service.resumeSync();
+      await service.clearSyncSession();
+      verify(() => sdk.resetAnchors()).called(1);
+      verify(() => sdk.resumeSync()).called(1);
+      verify(() => sdk.clearSyncSession()).called(1);
+    });
+
+    test('getSyncStatus returns the SDK map', () async {
+      when(() => sdk.getSyncStatus()).thenAnswer((_) async => {'state': 'idle'});
+      final status = await service.getSyncStatus();
+      expect(status['state'], 'idle');
+    });
+  });
 }

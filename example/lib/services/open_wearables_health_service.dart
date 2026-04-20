@@ -126,4 +126,21 @@ class OpenWearablesHealthService implements HealthService {
       'SDK self-uploads to backend; no client-built payload.',
     );
   }
+
+  // --- SDK passthroughs for the dev console (not part of HealthService contract) ---
+
+  Future<void> syncNow() => _sdk.syncNow();
+
+  Future<bool> startBackgroundSync({int? syncDaysBack}) =>
+      _sdk.startBackgroundSync(syncDaysBack: syncDaysBack);
+
+  Future<void> stopBackgroundSync() => _sdk.stopBackgroundSync();
+
+  Future<void> resetAnchors() => _sdk.resetAnchors();
+
+  Future<void> resumeSync() => _sdk.resumeSync();
+
+  Future<void> clearSyncSession() => _sdk.clearSyncSession();
+
+  Future<Map<String, dynamic>> getSyncStatus() => _sdk.getSyncStatus();
 }
