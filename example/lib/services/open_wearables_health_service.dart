@@ -49,7 +49,6 @@ class OpenWearablesHealthService implements HealthService {
 
   /// Returns SDK types corresponding to provided Cureocity metrics.
   /// Skips `null` (gap) entries. Used by later tasks.
-  // ignore: unused_element
   List<HealthDataType> _mappedTypesFor(Iterable<HealthMetric> metrics) =>
       metrics.map((m) => _metricMap[m]).whereType<HealthDataType>().toList();
 
@@ -85,8 +84,11 @@ class OpenWearablesHealthService implements HealthService {
   }
 
   @override
-  Future<bool> requestPermissions({required Set<HealthMetric> metrics}) =>
-      throw UnimplementedError('implemented in Task 13');
+  Future<bool> requestPermissions({required Set<HealthMetric> metrics}) async {
+    final mapped = _mappedTypesFor(metrics);
+    if (mapped.isEmpty) return false;
+    return _sdk.requestAuthorization(types: mapped);
+  }
 
   @override
   Future<void> installHealthConnect() =>

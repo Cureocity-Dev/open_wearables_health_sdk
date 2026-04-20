@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:open_wearables_health_sdk/health_data_type.dart';
 import 'package:open_wearables_health_sdk_example/services/health_metric.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_health_service.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_sdk_api.dart';
@@ -14,6 +15,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(<String>[]);
+    registerFallbackValue(<HealthDataType>[]);
   });
 
   setUp(() {
@@ -100,6 +102,36 @@ void main() {
         () => service.init(userId: 'u'),
         throwsA(isA<ArgumentError>()),
       );
+    });
+  });
+
+  group('OpenWearablesHealthService.requestPermissions', () {
+    test('maps metrics to SDK types, skipping gap entries', () async {
+      when(() => sdk.requestAuthorization(types: any(named: 'types')))
+          .thenAnswer((_) async => true);
+
+      final ok = await service.requestPermissions(metrics: {
+        HealthMetric.steps,
+        HealthMetric.stressScore, // gap — silently skipped
+        HealthMetric.heartrate,
+      });
+
+      expect(ok, isTrue);
+      final captured = verify(() => sdk.requestAuthorization(
+            types: captureAny(named: 'types'),
+          )).captured.single as List<HealthDataType>;
+      expect(captured, containsAll([HealthDataType.steps, HealthDataType.heartRate]));
+      expect(captured.length, 2);
+    });
+
+    test('returns false when no metrics map after filtering gaps', () async {
+      when(() => sdk.requestAuthorization(types: any(named: 'types')))
+          .thenAnswer((_) async => true);
+      final ok = await service.requestPermissions(metrics: {
+        HealthMetric.stressScore,
+      });
+      expect(ok, isFalse);
+      verifyNever(() => sdk.requestAuthorization(types: any(named: 'types')));
     });
   });
 }
