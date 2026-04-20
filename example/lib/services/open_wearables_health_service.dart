@@ -5,16 +5,23 @@ import 'package:open_wearables_health_sdk/health_data_type.dart';
 import 'health_metric.dart';
 import 'health_service.dart';
 import 'open_wearables_sdk_api.dart';
+import 'url_launcher_api.dart';
 
 class OpenWearablesHealthService implements HealthService {
   OpenWearablesHealthService({
     required OpenWearablesSdkApi sdk,
     required String host,
+    UrlLauncherApi? launcher,
   })  : _sdk = sdk,
-        _host = host;
+        _host = host,
+        _launcher = launcher ?? const UrlLauncherApi();
 
   final OpenWearablesSdkApi _sdk;
   final String _host;
+  final UrlLauncherApi _launcher;
+
+  static const String _healthConnectPlayStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata';
 
   bool _configured = false;
   bool _signedIn = false;
@@ -91,8 +98,9 @@ class OpenWearablesHealthService implements HealthService {
   }
 
   @override
-  Future<void> installHealthConnect() =>
-      throw UnimplementedError('implemented in Task 14');
+  Future<void> installHealthConnect() async {
+    await _launcher.launch(_healthConnectPlayStoreUrl);
+  }
 
   @override
   Future<void> fetchHealthData() =>

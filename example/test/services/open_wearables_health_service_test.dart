@@ -6,11 +6,15 @@ import 'package:open_wearables_health_sdk/health_data_type.dart';
 import 'package:open_wearables_health_sdk_example/services/health_metric.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_health_service.dart';
 import 'package:open_wearables_health_sdk_example/services/open_wearables_sdk_api.dart';
+import 'package:open_wearables_health_sdk_example/services/url_launcher_api.dart';
 
 class MockSdkApi extends Mock implements OpenWearablesSdkApi {}
 
+class MockLauncher extends Mock implements UrlLauncherApi {}
+
 void main() {
   late MockSdkApi sdk;
+  late MockLauncher launcher;
   late OpenWearablesHealthService service;
 
   setUpAll(() {
@@ -20,7 +24,12 @@ void main() {
 
   setUp(() {
     sdk = MockSdkApi();
-    service = OpenWearablesHealthService(sdk: sdk, host: 'http://localhost:8000');
+    launcher = MockLauncher();
+    service = OpenWearablesHealthService(
+      sdk: sdk,
+      host: 'http://localhost:8000',
+      launcher: launcher,
+    );
   });
 
   group('OpenWearablesHealthService capability flags', () {
@@ -132,6 +141,16 @@ void main() {
       });
       expect(ok, isFalse);
       verifyNever(() => sdk.requestAuthorization(types: any(named: 'types')));
+    });
+  });
+
+  group('OpenWearablesHealthService.installHealthConnect', () {
+    test('opens the Play Store Health Connect listing', () async {
+      when(() => launcher.launch(any())).thenAnswer((_) async => true);
+      await service.installHealthConnect();
+      verify(() => launcher.launch(
+            'https://play.google.com/store/apps/details?id=com.google.android.apps.healthdata',
+          )).called(1);
     });
   });
 }
