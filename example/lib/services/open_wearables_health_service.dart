@@ -13,13 +13,14 @@ class OpenWearablesHealthService implements HealthService {
   })  : _sdk = sdk,
         _host = host;
 
-  // ignore: unused_field
   final OpenWearablesSdkApi _sdk;
-  // ignore: unused_field
   final String _host;
 
+  bool _configured = false;
+  bool _signedIn = false;
+
   @override
-  bool get isInitialized => false;
+  bool get isInitialized => _configured && _signedIn;
 
   @override
   bool get supportsWaterWrite => false;
@@ -58,8 +59,30 @@ class OpenWearablesHealthService implements HealthService {
     String? accessToken,
     String? refreshToken,
     String? apiKey,
-  }) =>
-      throw UnimplementedError('implemented in Task 12');
+  }) async {
+    if (userId == null || userId.isEmpty) {
+      throw ArgumentError.value(userId, 'userId', 'must be a non-empty string');
+    }
+    if (apiKey == null && accessToken == null) {
+      throw ArgumentError('Either apiKey or accessToken must be provided');
+    }
+
+    await _sdk.configure(host: _host);
+    _configured = true;
+
+    try {
+      await _sdk.signIn(
+        userId: userId,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        apiKey: apiKey,
+      );
+      _signedIn = true;
+    } catch (_) {
+      _signedIn = false;
+      rethrow;
+    }
+  }
 
   @override
   Future<bool> requestPermissions({required Set<HealthMetric> metrics}) =>

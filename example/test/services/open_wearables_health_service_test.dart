@@ -12,6 +12,10 @@ void main() {
   late MockSdkApi sdk;
   late OpenWearablesHealthService service;
 
+  setUpAll(() {
+    registerFallbackValue(<String>[]);
+  });
+
   setUp(() {
     sdk = MockSdkApi();
     service = OpenWearablesHealthService(sdk: sdk, host: 'http://localhost:8000');
@@ -53,6 +57,49 @@ void main() {
       for (final m in HealthMetric.values) {
         service.supportsMetric(m);
       }
+    });
+  });
+
+  group('OpenWearablesHealthService.init', () {
+    test('calls configure(host) then signIn(userId, apiKey) in order', () async {
+      when(() => sdk.configure(host: any(named: 'host')))
+          .thenAnswer((_) async {});
+      // signIn returns OpenWearablesHealthSdkUser which is hard to construct in tests.
+      // We throw from the stub; the service's try/catch will rethrow, and the
+      // caller below catches. We only assert that BOTH methods were called in order.
+      when(() => sdk.signIn(
+                userId: any(named: 'userId'),
+                accessToken: any(named: 'accessToken'),
+                refreshToken: any(named: 'refreshToken'),
+                apiKey: any(named: 'apiKey'),
+              ))
+          .thenThrow(UnsupportedError('signIn return type unused in this test'));
+
+      await service.init(userId: 'demo-user-1', apiKey: 'key-123').catchError((_) {});
+
+      verifyInOrder([
+        () => sdk.configure(host: 'http://localhost:8000'),
+        () => sdk.signIn(
+              userId: 'demo-user-1',
+              accessToken: null,
+              refreshToken: null,
+              apiKey: 'key-123',
+            ),
+      ]);
+    });
+
+    test('throws ArgumentError when userId missing', () async {
+      expect(
+        () => service.init(apiKey: 'k'),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('throws ArgumentError when no credential provided', () async {
+      expect(
+        () => service.init(userId: 'u'),
+        throwsA(isA<ArgumentError>()),
+      );
     });
   });
 }
