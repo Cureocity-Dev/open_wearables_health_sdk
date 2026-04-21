@@ -5,7 +5,7 @@ description: "Demonstrates how to use the open_wearables_health_sdk plugin."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: ^3.9.2
+  sdk: ^3.6.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   http: ^1.6.0
   url_launcher: ^6.2.0
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   integration_test:

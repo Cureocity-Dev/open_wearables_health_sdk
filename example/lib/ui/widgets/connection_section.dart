@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../config/demo_credentials.dart';
 import '../../services/health_service_controller.dart';
 
 class ConnectionSection extends StatefulWidget {
@@ -10,15 +11,9 @@ class ConnectionSection extends StatefulWidget {
   State<ConnectionSection> createState() => _ConnectionSectionState();
 }
 
-// Demo defaults for the local docker-compose Open Wearables backend.
-// These are NOT production secrets — the API key authenticates only
-// against a developer's own localhost:8000 stack.
-const _demoUserId = 'cf455d6a-d670-453b-bd8d-d08adc9c921e';
-const _demoApiKey = 'sk-7a2713eb51a5752d0ba147c173d67e2a';
-
 class _ConnectionSectionState extends State<ConnectionSection> {
-  final _userId = TextEditingController(text: _demoUserId);
-  final _apiKey = TextEditingController(text: _demoApiKey);
+  final _userId = TextEditingController(text: kDemoUserId);
+  final _apiKey = TextEditingController(text: kDemoApiKey);
   final _accessToken = TextEditingController();
 
   @override

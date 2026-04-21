@@ -3,6 +3,9 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'config/demo_credentials.dart';
+import 'services/backend/health_data_controller.dart';
+import 'services/backend/open_wearables_backend_api.dart';
 import 'services/health_service_controller.dart';
 import 'services/open_wearables_health_service.dart';
 import 'services/open_wearables_sdk_api.dart';
@@ -37,20 +40,29 @@ class ParityProbeApp extends StatefulWidget {
 
 class _ParityProbeAppState extends State<ParityProbeApp> {
   late final HealthServiceController _controller;
+  late final OpenWearablesBackendApi _backend;
+  late final HealthDataController _healthData;
 
   @override
   void initState() {
     super.initState();
     const sdk = OpenWearablesSdkApi();
-    final service = OpenWearablesHealthService(
-      sdk: sdk,
-      host: _defaultHost(),
-    );
+    final host = _defaultHost();
+    final service = OpenWearablesHealthService(sdk: sdk, host: host);
     _controller = HealthServiceController(service: service);
+
+    _backend = OpenWearablesBackendApi(
+      host: host,
+      apiKey: kDemoApiKey,
+      userId: kDemoUserId,
+    );
+    _healthData = HealthDataController(api: _backend);
   }
 
   @override
   void dispose() {
+    _healthData.dispose();
+    _backend.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -64,7 +76,10 @@ class _ParityProbeAppState extends State<ParityProbeApp> {
         colorSchemeSeed: Colors.indigo,
         useMaterial3: true,
       ),
-      home: DevConsoleScreen(controller: _controller),
+      home: DevConsoleScreen(
+        controller: _controller,
+        healthDataController: _healthData,
+      ),
     );
   }
 }
