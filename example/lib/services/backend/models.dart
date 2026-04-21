@@ -1,6 +1,6 @@
-/// Plain DTOs for the Open Wearables backend REST API. Fields are
-/// intentionally minimal — only what the demo UI (Batch B) consumes.
-/// Kept separate from the SDK-facing types in `../`.
+// Plain DTOs for the Open Wearables backend REST API. Fields are
+// intentionally minimal — only what the demo UI (Batch B) consumes.
+// Kept separate from the SDK-facing types in `../`.
 
 class SourceMetadata {
   const SourceMetadata({required this.provider, this.device});
